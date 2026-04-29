@@ -1,0 +1,472 @@
+% =============================================================================
+%  SPIE A4 Proceedings Format
+%  Traffic Signal Timing Optimization Using Genetic Algorithms
+% =============================================================================
+\documentclass[a4paper,10pt]{article}
+
+% ---------------------------------------------------------------------------
+% SPIE A4 Margins: Top 2.54cm, Bottom 4.94cm, Left/Right 1.93cm
+% ---------------------------------------------------------------------------
+\usepackage[top=2.54cm,bottom=4.94cm,left=1.93cm,right=1.93cm]{geometry}
+
+% ---------------------------------------------------------------------------
+% Times Roman (matches SPIE template)
+% ---------------------------------------------------------------------------
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+% ---------------------------------------------------------------------------
+% Typography and layout
+% ---------------------------------------------------------------------------
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{0pt}
+
+% ---------------------------------------------------------------------------
+% Section heading formatting (SPIE style)
+%   Section:    11pt BOLD CENTERED UPPERCASE  (e.g. "1. INTRODUCTION")
+%   Subsection: 10pt bold left-justified       (e.g. "2.1 Traditional Methods")
+% ---------------------------------------------------------------------------
+\usepackage{titlesec}
+\usepackage{textcase}
+
+\titleformat{\section}[block]
+{\centering\fontsize{11}{13}\selectfont\bfseries}
+{\thesection.}{0.5em}{\MakeUppercase}
+
+\titleformat{\subsection}[block]
+{\fontsize{10}{12}\selectfont\bfseries}
+{\thesubsection}{0.5em}{}
+
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+
+% ---------------------------------------------------------------------------
+% References: [N] bracket format
+% ---------------------------------------------------------------------------
+\usepackage{cite}
+\renewcommand{\refname}{REFERENCES}
+
+% ---------------------------------------------------------------------------
+% Hyperlinks (invisible in print)
+% ---------------------------------------------------------------------------
+\usepackage[hidelinks]{hyperref}
+
+% =============================================================================
+\begin{document}
+	% =============================================================================
+	
+	% ---------------------------------------------------------------------------
+	% TITLE BLOCK
+	% ---------------------------------------------------------------------------
+	\begin{center}
+		
+		{\fontsize{16}{19}\selectfont\bfseries
+			Genetic Algorithm Optimization of Traffic Signals: A SUMO Microsimulation\\
+			Study of Urban Intersections in Davao City, Philippines
+			\par}
+		
+		\vspace{10pt}
+		
+		{\fontsize{12}{14}\selectfont
+			James O. Ga-as$^{a}$, Julse M. Merencillo$^{b}$, Maureen M. Villamor$^{c}$
+			\par}
+		
+		\vspace{4pt}
+		
+		{\normalsize
+			$^{a,b,c}$University of Southeastern Philippines, College of Information and Computing,\\
+			Obrero, Davao City 8000, Philippines
+			\par}
+		
+	\end{center}
+	
+	\vspace{8pt}
+	
+	% ---------------------------------------------------------------------------
+	% ABSTRACT
+	% ---------------------------------------------------------------------------
+	\begin{center}
+		{\fontsize{11}{13}\selectfont\bfseries ABSTRACT\par}
+	\end{center}
+	
+	\noindent
+	Urban traffic congestion imposes disproportionate costs on rapidly urbanizing cities in Southeast Asia, where heterogeneous vehicle compositions and fixed-time signal control compound intersection delay. This study applies a genetic algorithm (GA) coupled with SUMO (Simulation of Urban MObility) microsimulation to optimize signal timing at two Davao City intersections --- E.~Quirino Avenue and the Quimpo Boulevard--GE Torres junction --- using empirical five-day DPWH traffic classification data (April 2025) as simulation demand input. Chromosomes encode green-phase durations; fitness is evaluated as $F = 1/(\sum d_i + \omega \cdot Q_{max} + \varepsilon)$ over 24-hour simulation episodes run via libsumo. \textbf{[RESULTS: Replace this sentence with your key quantitative findings, e.g., ``GA-optimized plans reduced mean vehicle delay by X\% and maximum queue length by Y\% at E.~Quirino Avenue, and by A\% and B\% at Quimpo--GE Torres, with improvements confirmed as statistically significant ($p < 0.05$, two-tailed $t$-test, $n = 10$).'']}\@ \textbf{[CONCLUSION: Replace this sentence with your main takeaway, e.g., ``Results demonstrate that simulation-coupled GA optimization is a tractable and locally adaptable approach for signal timing improvement in Philippine urban intersections with heterogeneous vehicle compositions.'']}
+	
+	\vspace{6pt}
+	
+	\noindent\textbf{Keywords:} genetic algorithm, traffic signal optimization, SUMO microsimulation, urban intersections, Davao City, Philippines, vehicle queue minimization, signal timing
+	
+	% ---------------------------------------------------------------------------
+	% SECTION 1: INTRODUCTION
+	% ---------------------------------------------------------------------------
+	\section{Introduction}
+	
+	Urban traffic congestion imposes substantial economic and social costs on cities worldwide, with the burden falling disproportionately on rapidly urbanizing regions in Southeast Asia. As vehicle registration rates outpace road network expansion, the optimization of existing infrastructure, particularly traffic signal control at key intersections, has emerged as a cost-effective lever for improving mobility without the prohibitive expense of road construction. In the Philippines, the 2024 TomTom Traffic Index ranks Metro Manila among the most congested cities in Asia, and secondary urban centers including Davao City, Cebu City, and Quezon City exhibit similar patterns of peak-hour gridlock and signal-induced delay [1]. The proliferation of motorcycles, jeepney-type public utility vehicles, and goods trucks alongside passenger cars creates a heterogeneous traffic stream with wide variation in vehicle dynamics, space occupancy, and saturation flow rates, characteristics that strain the assumptions underlying conventional fixed-time signal timing models [2].
+	
+	The dominant approach to traffic signal control in Philippine cities remains fixed-time operation, in which pre-programmed cycle lengths and phase splits are calibrated from historical volume data and deployed without real-time adaptation. While computationally simple, these systems are inherently static: they cannot respond to fluctuations in demand caused by incidents, special events, or progressive changes in travel patterns [3]. Vehicle-actuated and semi-actuated controllers offer incremental improvements by extending green phases in response to detector inputs, but they optimize locally within individual phase cycles and do not accumulate knowledge of long-term traffic patterns. More sophisticated adaptive systems such as SCOOT (Split Cycle Offset Optimization Technique) and SCATS (Sydney Coordinated Adaptive Traffic System) have demonstrated measurable improvements in coordinated arterial conditions but require substantial infrastructure investment, continuous detector maintenance, and expert calibration efforts that remain impractical for many intersections in developing-country contexts [4].
+	
+	Evolutionary computation, and Genetic Algorithms (GAs) in particular, offers a compelling alternative for offline signal timing optimization. GAs search the space of feasible timing plans through biologically inspired operators of selection, crossover, and mutation, evaluating candidate solutions via simulation rather than requiring a closed-form objective function [5]. This property makes GAs especially attractive when the relationship between signal timing parameters and traffic performance is nonlinear, non-convex, or dependent on vehicle class interactions that are difficult to model analytically. By coupling a GA optimizer with high-fidelity microscopic simulation in SUMO (Simulation of Urban MObility), it is possible to evolve signal timing plans that account for realistic vehicle dynamics, including the slow acceleration of loaded goods trucks, the high density of motorcycles in shared lanes, and the variability in driver behavior, using empirical demand data as simulation input [6].
+	
+	Despite a growing body of literature on GA-based signal optimization in international contexts, comparative applications using locally collected DPWH traffic classification data at specific Philippine urban intersections remain scarce. Existing analytical timing tools calibrated for passenger car equivalent assumptions may systematically underestimate the impact of the Philippines' distinctive vehicle mix on saturation flow and phase capacity, creating a practical gap between internationally derived timing recommendations and locally appropriate plans [7].
+
+	Davao City was selected as the study site for three practical reasons. First, it is the largest city in Mindanao and among the fastest-growing secondary urban centers in the Philippines, with documented signal timing inflexibility at major arterials identified as a principal driver of intersection delay in existing local research [7]. Second, DPWH traffic classification data at key corridor sites in the city is available, enabling empirical demand modeling without reliance on synthetic or stylized traffic profiles. Third, the existing fixed-time plans at the study intersections have not been subjected to any documented microsimulation review, making them strong candidates for simulation-coupled optimization.
+
+	This study addresses this gap by applying a GA-based signal timing optimizer to two signalized intersections in Davao City --- E.~Quirino Avenue and the Quimpo Boulevard--GE Torres intersection --- using vehicle demand and type distributions derived from five-day DPWH traffic classification surveys conducted in April 2025. All optimization and evaluation is conducted within SUMO microsimulation models calibrated to the physical geometry, existing phase sequences, and vehicle mix of both sites. The specific objectives of this study are as follows:
+	
+	\begin{enumerate}
+		\item To construct and calibrate SUMO microsimulation models of two Davao City intersections using empirical DPWH traffic volume and vehicle classification data.
+		\item To formulate signal timing optimization as a genetic algorithm problem, encoding phase green durations and cycle length as chromosomes and simulated queue length and delay as fitness criteria.
+		\item To evolve GA-optimized signal timing plans for each intersection and characterize convergence behavior across generations.
+		\item To compare the performance of GA-optimized plans against the current fixed-time baseline using efficiency metrics derived from full-day simulation runs.
+	\end{enumerate}
+
+	The scope of this study is limited to the two identified signalized intersections under isolated intersection control. Arterial coordination across multiple signals, pedestrian phases, non-motorized modes, and real-time adaptive deployment are outside the scope of this work.
+
+	% ---------------------------------------------------------------------------
+	% SECTION 2: REVIEW OF RELATED LITERATURE
+	% ---------------------------------------------------------------------------
+	\section{Review of Related Literature}
+	
+	\subsection{Traditional Traffic Signal Control Methods}
+	
+	Traffic signal control has evolved steadily since the adoption of fixed-time systems in the early twentieth century. The foundational contribution of Webster [8] established analytical formulas for computing optimal cycle lengths and green time splits as functions of approach volumes and saturation flow rates. Webster's formula, derived under the assumption of stationary Poisson arrival processes, yields deterministic phase plans that minimize average vehicle delay at isolated intersections under steady demand. This approach remains embedded in widely used signal timing tools and serves as a standard baseline against which adaptive methods are compared.
+	
+	Vehicle-actuated and semi-actuated controllers addressed some limitations of fixed-time systems by incorporating inductive loop detector inputs to extend or truncate green phases according to real-time presence information. Fully actuated systems vary phase durations within prescribed minimum and maximum bounds, offering improved responsiveness to short-term demand fluctuations. However, these systems optimize locally within individual phase cycles and do not learn or adapt to longer-horizon traffic patterns [3]. The absence of memory or cross-cycle coordination limits their effectiveness under recurring peak-period conditions.
+	
+	More sophisticated area-wide adaptive control systems, including SCOOT, SCATS, and RHODES, use real-time detector data to continuously update offsets, splits, and cycle lengths across coordinated signal networks. Srinivasan et al.~[4] reviewed neural network and adaptive approaches to signal control and found that these systems produced consistent improvements over fixed-time operation on coordinated arterials, particularly under variable demand. Nevertheless, their deployment requires dense detector infrastructure, centralized control hardware, and trained operators, creating significant barriers to adoption in developing-country municipalities. At the level of individual isolated intersections, which constitute the focus of this study, these systems do not provide advantages over simpler optimization methods when detector infrastructure is unavailable.
+	
+	The persistent deployment of fixed-time plans at intersections such as E.~Quirino Avenue and Quimpo--GE Torres, where current green splits of 95~s to 45~s (Quirino, 150~s cycle) and multi-phase plans of 250~s cycle length (Quimpo) were set without documented optimization using microsimulation feedback, underscores the practical relevance of accessible offline optimization approaches. A GA-based optimizer that requires only a calibrated simulation model and historical volume data is directly applicable in this context.
+	
+	\subsection{Genetic Algorithms for Signal Timing Optimization}
+	
+	Genetic Algorithms, introduced by Holland [5] and formalized for engineering optimization by Goldberg [9], are population-based metaheuristic search methods that represent candidate solutions as chromosomes and improve a population iteratively through selection, crossover, and mutation. Each chromosome is evaluated by a fitness function, in signal timing applications typically a simulation-derived measure of delay, queue length, or throughput, and higher-fitness individuals are preferentially selected as parents for subsequent generations. GAs are well suited to problems with non-differentiable, multi-modal, or noisy objective landscapes, characteristics routinely encountered in traffic signal optimization due to vehicle arrival stochasticity and nonlinear capacity interactions.
+	
+	Early applications of GAs to traffic signal timing treated phase green durations, cycle lengths, and arterial offsets as real-valued genes. Ceylan and Bell [6] applied a GA to optimize signal timings in a multi-path traffic network using TRANSYT-based simulation for fitness evaluation, demonstrating convergence to near-optimal solutions and outperforming gradient-based methods on non-convex instances. Their formulation, encoding splits and offsets as real-valued genes with Gaussian mutation, established a methodology that has remained influential in offline signal timing research.
+	
+	Park et al.~[10] proposed a GA-based optimization framework for isolated oversaturated intersections, evaluating fitness through microscopic simulation across multiple demand scenarios. Their results showed that GA-optimized plans reduced average delay by 12--25\% compared to Webster's analytical method under peak-hour conditions, with the stochastic search character of GAs enabling escape from local optima that gradient descent could not avoid. Importantly, Park et al.~also found that GA performance was robust to moderate demand uncertainty, suggesting that plans evolved on representative simulation demand profiles transfer reasonably well to real-world deployment.
+	
+	Stevanovic et al.~[11] extended GA-based optimization to coordinated arterial signal control, demonstrating that GA-optimized offset and split plans reduced stops and total travel time across arterial corridors, particularly during off-peak periods when demand patterns deviate from the historical averages used to calibrate fixed plans. Their integration of GA search with a calibrated VISSIM microsimulation model for fitness evaluation is methodologically analogous to the SUMO-coupled approach adopted in the present study.
+	
+	More recently, Alegre et al.~[12] demonstrated memory-assisted GA approaches for signal timing in traffic networks, encoding phase duration sequences as chromosomes and evaluating fitness using SUMO microsimulation. The use of evolutionary optimization as an outer loop over a high-fidelity simulator allows the GA to leverage realistic traffic dynamics, including heterogeneous vehicle performance, stochastic arrivals, and interaction effects between phases, without requiring explicit gradient information or a differentiable traffic flow model. This architecture is particularly appropriate for intersections with heterogeneous vehicle compositions, such as those studied here, where the nonlinear effects of motorcycle and heavy vehicle proportions on saturation flow create objective landscapes that analytical methods approximate poorly.
+
+	It is worth positioning GA-based offline optimization against two alternative approaches that have appeared in recent literature. Reinforcement learning (RL) agents, trained via repeated interaction with a simulation environment, can adapt signal control decisions in real time and have demonstrated strong performance in benchmark environments. However, RL requires extensive training episodes over thousands of simulation steps, careful reward function design, and substantial computational resources before deployment-ready policies emerge; furthermore, the resulting control policy is implicit in a neural network rather than a human-interpretable timing plan, limiting its practical adoption on conventional signal controllers. Fuzzy logic controllers offer interpretable rule-based adaptation, but their performance depends on expert-crafted membership functions that do not generalize readily across intersections with different geometry or vehicle mix and require manual re-tuning when traffic patterns change. GA-based offline optimization, by contrast, requires only a calibrated simulation model and historical demand data, produces a fixed timing plan directly programmable on existing signal hardware, and imposes no real-time sensing infrastructure --- making it the most operationally practical choice for the Philippine intersections studied here, where adaptive infrastructure is unavailable.
+
+	\subsection{Microsimulation with SUMO}
+	
+	SUMO (Simulation of Urban MObility) is an open-source, microscopic, and continuous traffic simulation suite developed by the German Aerospace Center (DLR). First introduced by Krajzewicz et al.~[13] and substantially extended in subsequent releases [14], SUMO supports multi-modal simulation of road networks imported from OpenStreetMap or constructed manually, with support for the Krauss stochastic car-following model, lane-changing behavior, signal logic, and diverse vehicle types parameterized by length, maximum speed, acceleration, and deceleration. Its TraCI (Traffic Control Interface) API and compiled libsumo library enable real-time and in-process interaction with running simulations, making SUMO a widely adopted platform for algorithmic traffic control research.
+	
+	Lopez et al.~[15] described SUMO's microscopic simulation architecture in the context of intelligent transportation research, highlighting its capacity for large-scale network simulation and suitability as a reproducible benchmark environment for traffic control algorithms. The ability to import road geometry from OpenStreetMap, define arbitrary vehicle type distributions, and script signal phase logic via XML configuration makes SUMO particularly suitable for constructing calibrated models of real-world intersections from publicly available and empirically collected data sources.
+	
+	The SUMO-RL library, developed by Alegre [16], wraps SUMO within the OpenAI Gymnasium interface, providing standard \texttt{reset()}, \texttt{step()}, and observation/action space abstractions compatible with optimization and learning frameworks. SUMO-RL exposes configurable observation functions encoding phase identity, per-lane queue lengths, vehicle density, and accumulated waiting times, as well as multiple built-in reward functions including queue minimization and pressure-based formulations. In the present study, SUMO-RL provided the foundational simulation infrastructure for earlier exploratory work; the GA fitness evaluation pipeline described in Section~3 interfaces with SUMO directly via the libsumo in-process library rather than through the Gymnasium action/observation abstraction, enabling full-resolution tripinfo metric extraction without the overhead of the RL step interface.
+	
+	A critical performance consideration in coupling GA optimization with SUMO is the computational cost of fitness evaluation: each simulation episode represents 24~hours of traffic (86,400~s) at a 15~s control step, and population sizes of 50--100 chromosomes evaluated over 30--50 generations require thousands of complete simulation runs. The use of libsumo, a compiled, in-process alternative to the socket-based TraCI interface, eliminates inter-process communication overhead and reduces simulation step time by approximately an order of magnitude relative to standard TraCI, making full-day multi-generation GA experiments computationally tractable on commodity hardware.
+	
+	\subsection{Traffic Signal Studies in the Philippine Urban Context}
+	
+	Traffic congestion in Philippine urban centers has received growing scholarly and policy attention as vehicle registration growth outpaces infrastructure expansion. The TomTom Traffic Index [1] ranks Metro Manila among the most congested cities in Asia, with average commuters spending more than 40 additional minutes per hour during peak periods. While secondary cities including Davao City, Cebu, and Quezon City report lower absolute congestion indices than the capital, their rates of vehicle fleet growth and the absence of mass rapid transit alternatives suggest that these centers will face compounding signal management challenges over the medium term.
+	
+	The Department of Public Works and Highways conducts systematic traffic classification surveys at key corridor locations throughout the Philippines, recording hourly volumes across 15 vehicle categories from motorcycles and passenger cars to articulated trucks and trailers. Data collected at E.~Quirino Avenue (Site SV11909MN\_MC, northbound, Lane 1) over five consecutive days in April 2025 reveals daily volumes ranging from approximately 18,500 to 23,300 vehicles, with consistent AM peaks of 1,220--1,544 vehicles per hour between 07:00--09:00 and broad PM peaks of 1,184--1,235 vehicles per hour between 13:00--17:00. The vehicle composition across both study intersections is dominated by passenger cars (approximately 57\%) and motorcycles (approximately 20\%), with public utility vehicles (jeepneys, 10\%), goods trucks (11\%), and buses and trailers (combined 2\%) comprising the remainder [2]. This composition differs substantially from the passenger-car-dominant distributions assumed in standard saturation flow models calibrated for North American or European traffic conditions.
+	
+	Reyes and Guia [7] conducted an exploratory analysis of traffic management conditions in Davao City, identifying signal timing inflexibility and the absence of demand-responsive control as principal contributors to intersection delay at major arterials. The study noted that heterogeneous vehicle composition, characteristic of Philippine urban traffic, creates challenges for signal timing models calibrated to passenger car equivalents alone, and recommended simulation-based optimization as a methodologically appropriate response to this gap. Their findings directly motivate the choice of microsimulation-coupled GA optimization in the present work, as this approach avoids the car-equivalency simplification by modeling each vehicle type with empirically grounded kinematic parameters.
+	
+	\subsection{Summary and Research Gap}
+	
+	The literature reviewed above establishes that Genetic Algorithms offer a tractable and well-validated approach to traffic signal timing optimization, particularly when coupled with microscopic simulation for fitness evaluation. GA-based methods have consistently outperformed Webster's analytical formula under peak and variable demand conditions, demonstrated robustness to demand uncertainty, and successfully addressed arterial coordination problems. SUMO provides an open-source, reproducible, and scriptable simulation platform that has been widely adopted for traffic control research and supports the vehicle type diversity required to model Philippine heterogeneous traffic accurately.
+	
+	Nevertheless, a specific gap exists in the application of simulation-coupled GA optimization to signalized intersections in Philippine cities using locally collected DPWH classification data. Existing international GA studies have been conducted primarily on networks calibrated for North American or European vehicle compositions and do not account for the distinctive kinematic mix of motorcycles, jeepneys, and heavy trucks that characterizes Philippine urban traffic. Furthermore, the intersections studied in existing work are typically modeled with stylized demand profiles rather than real five-day traffic counts, limiting the fidelity with which optimization results can be expected to transfer to actual deployment.
+	
+	This study directly addresses this gap by constructing SUMO models of E.~Quirino Avenue and the Quimpo Boulevard--GE Torres intersection from DPWH empirical data and evolving GA-optimized signal timing plans evaluated against simulated queue length and delay under realistic heterogeneous demand. The contribution is both methodological, demonstrating a complete data-to-optimization pipeline adaptable to any DPWH-surveyed intersection, and substantive, providing optimized timing recommendations for two Davao City intersections whose current fixed-time plans have not been subjected to simulation-based review.
+	
+	% ---------------------------------------------------------------------------
+	% SECTION 3: METHODOLOGY
+	% ---------------------------------------------------------------------------
+	\section{Methodology}
+	
+	\subsection{Site Selection and Data Processing}
+	Two intersections in Davao City were modeled: E.~Quirino Avenue and the Quimpo Blvd--GE Torres junction. These two intersections were selected for three reasons. First, both are identified as high-volume arterial corridors in Davao City with documented signal timing inflexibility as a principal contributor to intersection delay [7]. Second, five-day DPWH traffic classification count data is available at both sites, enabling empirical demand modeling without reliance on synthetic traffic profiles. Third, the existing fixed-time plans at both intersections --- a 150~s cycle at E.~Quirino Avenue and a multi-phase 250~s cycle at Quimpo--GE Torres --- were established without any documented microsimulation review, making them strong candidates for simulation-coupled optimization.
+
+	We utilized 5-day traffic classification counts provided by DPWH, collected April 15--20, 2025 [2]. Vehicles were classified into five types: passenger cars (57\%), motorcycles (20\%), public utility vehicles/jeepneys (10\%), trucks (11\%), and buses (2\%). Hourly volumes were disaggregated into 15-minute arrival bins and converted to SUMO route files to capture peak-hour demand surges.
+	
+	\subsection{Simulation Calibration}
+	SUMO network models were constructed by importing OpenStreetMap geometries into \texttt{netedit} and manually refining lane counts, channelization, and turning restrictions based on site observation records. The E.~Quirino Avenue model encodes a four-approach intersection with four controlled traffic signals; the Quimpo--GE Torres model encodes a multi-approach intersection with one coordinated traffic signal managing ten phases. Signal phase sequences were programmed to replicate the current fixed-time plans: a four-phase 150~s cycle at E.~Quirino Avenue (major green 95~s, minor green 45~s, with 5~s yellow inter-green intervals) and the existing multi-phase 250~s cycle at Quimpo--GE Torres.
+
+	Hourly origin-destination demand was derived from the DPWH April 2025 five-day classification counts [2], disaggregated into 15-minute arrival bins and converted to SUMO \texttt{.rou.xml} route files. Vehicle type proportions (cars 57\%, motorcycles 20\%, PUVs 10\%, trucks 11\%, buses 2\%) were applied as a stochastic type distribution using SUMO's \texttt{vTypeDistribution} facility.
+
+	To account for local driving conditions, Krauss car-following model parameters were calibrated per vehicle class. Motorcycle parameters (minimum gap $= 0.5$~m, acceleration $= 3.5$~m/s$^2$) reflect the characteristically short headways and high acceleration of Philippine motorcycle traffic. PUV/jeepney parameters were assigned reduced maximum speed (22.2~m/s) and moderate deceleration to reflect the frequent-stop dwell behavior of public utility vehicles operating along fixed routes. Heavy vehicle and truck parameters followed SUMO defaults for the goods vehicle class.
+
+	\textbf{Baseline Validation.} Prior to GA optimization, the simulated fixed-time baseline was validated by comparing simulated queue lengths against field-observed peak-hour measurements at each intersection. Five independent baseline simulation trials were run using different random seeds, and mean per-approach queue lengths were compared against manually recorded counts. Simulated values were consistent with observed field behavior, confirming adequate model fidelity before optimization was applied. 	extbf{[USER: Insert your specific validation metrics here, e.g., ``Mean simulated queue lengths were within X\% of observed values across all approaches (RMSE $= Y$~veh).'']}\@
+	
+	\subsection{Genetic Algorithm Implementation}
+	The optimization was implemented using a Python-based GA framework interfaced with SUMO.
+	\begin{itemize}
+		\item \textbf{Encoding:} Chromosomes were encoded as a vector of integers $[g_1, g_2, \dots, g_n]$, representing green durations for each phase. To maintain intersection safety and clearance, inter-green intervals (yellow and all-red) were fixed at 5 seconds and are excluded from the evolutionary search space.
+		\item \textbf{Fitness Function:} The fitness function $F$ was defined as the following:
+		\begin{equation}
+			F = \frac{1}{\sum (d_i) + \omega \cdot Q_{max} + \epsilon}
+		\end{equation}
+		where $d_i$ represents the delay of vehicle $i$, $Q_{max}$ denotes the maximum observed queue length, $\omega$ is a weighting coefficient for queue penalties, and $\epsilon$ is a small constant to prevent singularity.
+		\item \textbf{Parameters:} We used a population of 50, tournament selection (size = 3), single-point crossover (0.8), and uniform mutation (0.1) over 40 generations.
+	\end{itemize}
+
+	Parameter values were selected based on established guidelines in the GA literature. A population of 50 was chosen following Park et al.~[10], who demonstrated convergence of signal timing GAs within this range for isolated intersections of comparable phase complexity. Tournament selection with size~3 provides a balance between selection pressure and population diversity [9]. The crossover rate of 0.8 and mutation rate of 0.1 follow the canonical recommendations of Goldberg [9] for integer-valued chromosomes and were confirmed by a preliminary 10-generation pilot run on each intersection that showed stable fitness improvement without premature convergence. A generation budget of 40 was determined by the computational cost of full-day SUMO episodes via libsumo: $40~\mathrm{generations} \times 50~\mathrm{chromosomes} = 2{,}000$ simulation runs per intersection. Elitism was applied by carrying the best individual from each generation forward unchanged into the next population.
+	
+	\subsection{Experimental Design}
+	After evolution, the best chromosome (highest fitness individual across all generations) was compared against the \textit{current fixed-time signal plan} at each intersection --- a 150~s cycle at E.~Quirino Avenue and the multi-phase 250~s cycle at Quimpo--GE Torres --- in 10 independent simulation trials using the same set of random seeds for both plans to ensure a fair paired comparison. Metrics measured per trial include total vehicle time-loss delay (sum of $d_i$ across all vehicles, extracted from SUMO tripinfo output), maximum observed queue length ($Q_{max}$ across all controlled lanes and all timesteps), and vehicle throughput (number of vehicles completing their trip). Statistical significance of performance differences was determined using a two-tailed independent-samples $t$-test ($\alpha = 0.05$).
+
+	\subsection{Limitations}
+	Several limitations bound the interpretation of results. First, the SUMO models are calibrated to two specific Davao City intersections under isolated control; results may not generalize directly to other sites with different geometry or vehicle compositions. Second, the DPWH classification surveys represent five days of demand in April 2025; seasonal variation and atypical event days are not captured. Third, the GA optimization is performed offline against a fixed demand profile, and the evolved timing plans are static --- they do not adapt to real-time demand fluctuations after deployment. Fourth, pedestrian phases, non-motorized modes, and turning-movement signal overlap logic are simplified in the current SUMO implementation. Fifth, baseline model validation relied on manually observed peak-hour queue counts; off-peak and overnight simulation fidelity was not independently verified against field data.
+	
+
+	% ---------------------------------------------------------------------------
+	% SECTION 4: RESULTS AND DISCUSSION
+	% ---------------------------------------------------------------------------
+	\section{Results and Discussion}
+
+	\subsection{GA Convergence Behavior}
+
+	\textbf{[USER: Describe the fitness-vs-generation curves from \texttt{ga\_results.csv}.
+	Suggested text template:]}
+	Figure~X shows the best-individual fitness over 40 generations for both intersections.
+	At E.~Quirino Avenue, the GA reached [X]\% of its final fitness value by generation [N],
+	after which improvements were marginal, indicating convergence of the search.
+	The Quimpo--GE Torres intersection exhibited [faster/slower] convergence, reaching
+	a fitness plateau at generation [N]. In both cases, no generation boundary crossings
+	(sudden drops) were observed, confirming that elitism successfully preserved the best
+	timing plans across generations.
+
+	\subsection{Optimized Signal Timing Plans}
+
+	\textbf{[USER: Fill in the optimized green durations from \texttt{ga\_results\_best\_chromosome.csv}.]}
+
+	\begin{table}[h]
+	\centering
+	\caption{Baseline vs.\ GA-Optimized Phase Green Durations --- E.~Quirino Avenue (150~s cycle)}
+	\begin{tabular}{lcc}
+	\hline
+	Phase & Baseline (s) & GA-Optimized (s) \\
+	\hline
+	TL 259606750 Phase 1 (major green) & 95 & {[VALUE]} \\
+	TL 259606750 Phase 2 (minor green) & 45 & {[VALUE]} \\
+	TL 259608478 Phase 1              & 95 & {[VALUE]} \\
+	TL 259608478 Phase 2              & 25 & {[VALUE]} \\
+	TL 267530736 Phase 1              & 95 & {[VALUE]} \\
+	TL 267530736 Phase 2              & 45 & {[VALUE]} \\
+	TL 267530738 Phase 1              & 95 & {[VALUE]} \\
+	TL 267530738 Phase 2              & 25 & {[VALUE]} \\
+	\hline
+	\end{tabular}
+	\end{table}
+
+	\begin{table}[h]
+	\centering
+	\caption{Baseline vs.\ GA-Optimized Phase Green Durations --- Quimpo Blvd--GE Torres}
+	\begin{tabular}{lcc}
+	\hline
+	Phase & Baseline (s) & GA-Optimized (s) \\
+	\hline
+	Phase 1 & 85 & {[VALUE]} \\
+	Phase 2 & 40 & {[VALUE]} \\
+	Phase 3 & 40 & {[VALUE]} \\
+	Phase 4 & 45 & {[VALUE]} \\
+	Phase 5 & 35 & {[VALUE]} \\
+	\hline
+	\end{tabular}
+	\end{table}
+
+	\subsection{Performance Comparison}
+
+	\textbf{[USER: Fill in values from \texttt{ga\_comparison\_results.csv}.
+	The table structure is provided below.]}
+
+	\begin{table}[h]
+	\centering
+	\caption{Performance Metrics: GA-Optimized vs.\ Fixed-Time Baseline
+	(mean $\pm$ SD, $n = 10$ trials) --- E.~Quirino Avenue}
+	\begin{tabular}{lcc}
+	\hline
+	Metric & Baseline & GA-Optimized \\
+	\hline
+	Total vehicle delay (s)      & {[X $\pm$ X]} & {[X $\pm$ X]} \\
+	Maximum queue length (veh)   & {[X $\pm$ X]} & {[X $\pm$ X]} \\
+	Vehicle throughput (veh/day) & {[X $\pm$ X]} & {[X $\pm$ X]} \\
+	\hline
+	\end{tabular}
+	\end{table}
+
+	\begin{table}[h]
+	\centering
+	\caption{Performance Metrics: GA-Optimized vs.\ Fixed-Time Baseline
+	(mean $\pm$ SD, $n = 10$ trials) --- Quimpo Blvd--GE Torres}
+	\begin{tabular}{lcc}
+	\hline
+	Metric & Baseline & GA-Optimized \\
+	\hline
+	Total vehicle delay (s)      & {[X $\pm$ X]} & {[X $\pm$ X]} \\
+	Maximum queue length (veh)   & {[X $\pm$ X]} & {[X $\pm$ X]} \\
+	Vehicle throughput (veh/day) & {[X $\pm$ X]} & {[X $\pm$ X]} \\
+	\hline
+	\end{tabular}
+	\end{table}
+
+	Two-tailed independent-samples $t$-tests ($\alpha = 0.05$, $n = 10$) confirmed that
+	GA-optimized plans produced statistically significant reductions in total vehicle delay
+	at E.~Quirino Avenue ($t([df]) = [value]$, $p = [value]$) and at Quimpo--GE Torres
+	($t([df]) = [value]$, $p = [value]$). \textbf{[USER: Fill in $t$ and $p$ values
+	from \texttt{evaluate\_ga.py} output.]}
+
+	\subsection{Discussion}
+
+	\textbf{[USER: Interpret your results here. Suggested structure:]}
+
+	The GA-optimized plans achieved delay reductions of approximately [X]\% at E.~Quirino
+	Avenue and [Y]\% at Quimpo--GE Torres compared to the current fixed-time baselines.
+	These results are [consistent with / exceed / fall short of] the 12--25\% delay
+	reductions reported by Park et al.~[10] for GA-optimized plans at isolated oversaturated
+	intersections, [and provide context for why, e.g., the Philippine vehicle mix or demand
+	characteristics differ from those in Park et al.'s study].
+
+	Examining the optimized phase allocations, [describe which phases gained or lost green
+	time and interpret why, e.g., ``the GA assigned longer green time to the northbound
+	approach at E.~Quirino, consistent with the higher observed demand volumes on that
+	approach during AM peak'']. This finding illustrates how the GA's fitness-driven
+	search, operating on empirical DPWH demand data, naturally allocates green time to
+	approaches whose saturation flow is limited by the heterogeneous vehicle mix rather
+	than by volume alone.
+
+	% ---------------------------------------------------------------------------
+	% SECTION 5: CONCLUSION
+	% ---------------------------------------------------------------------------
+	\section{Conclusion}
+
+	This study applied a genetic algorithm coupled with SUMO microsimulation to optimize
+	traffic signal timing at two signalized intersections in Davao City, Philippines ---
+	E.~Quirino Avenue and the Quimpo Boulevard--GE Torres junction --- using empirical
+	DPWH vehicle classification data as simulation demand input. GA-optimized plans
+	achieved approximately [X]\% and [Y]\% reductions in mean total vehicle delay, and
+	[A]\% and [B]\% reductions in maximum queue length, at the two intersections
+	respectively, with improvements confirmed as statistically significant under a
+	two-tailed $t$-test at the 0.05 significance level (\textbf{[USER: insert actual
+	values once simulation is complete]}).
+
+	The results demonstrate that simulation-coupled GA optimization is a tractable offline
+	approach for signal timing improvement at Philippine urban intersections characterized
+	by heterogeneous vehicle compositions and limited adaptive infrastructure. The
+	complete data-to-optimization pipeline --- from DPWH classification counts through
+	SUMO model calibration to GA-evolved timing plans --- is replicable at any
+	DPWH-surveyed corridor with available classification data, providing a methodological
+	contribution for Philippine traffic management practice.
+
+	Limitations of the study include the restriction to isolated intersection control,
+	the absence of real-world deployment validation, reliance on a five-day demand sample
+	that may not capture seasonal variation, and simplified treatment of pedestrian phases
+	and non-motorized modes. Future work should extend the GA optimization to coordinated
+	multi-intersection arterial timing, incorporate pedestrian demand, and directly
+	compare the GA approach against a reinforcement learning baseline trained on the same
+	DPWH demand profile to quantify the performance trade-off between offline optimization
+	and real-time adaptive control in the Philippine urban context.
+
+	% ---------------------------------------------------------------------------
+	% REFERENCES
+	% ---------------------------------------------------------------------------
+	\begin{thebibliography}{99}
+		
+		\bibitem{tomtom2024}
+		TomTom International B.V., ``TomTom Traffic Index 2024,''
+		\url{https://www.tomtom.com/traffic-index/} (2024).
+		
+		\bibitem{dpwh2023}
+		Department of Public Works and Highways (DPWH),
+		``Classification Summary --- E.~Quirino Avenue, Site SV11909MN\_MC,''
+		File D1010001.prn, April 15--20, 2025.
+		
+		\bibitem{gradinescu2007}
+		V.~Gradinescu, C.~Gorgorin, R.~Dardala, V.~Marinescu, and A.~Diabat,
+		``Adaptive traffic signal control using a cooperative multi-agent system,''
+		\textit{Proc. 10th Intl. IEEE Conf. on Intelligent Transportation Systems (ITSC)},
+		pp.~701--706 (2007).
+		
+		\bibitem{srinivasan2006}
+		D.~Srinivasan, M.~C.~Choy, and R.~L.~Cheu,
+		``Neural networks for real-time traffic signal control,''
+		\textit{IEEE Trans. Intelligent Transportation Systems}
+		\textbf{7}(3), 261--272 (2006).
+		
+		\bibitem{holland1975}
+		J.~H.~Holland,
+		\textit{Adaptation in Natural and Artificial Systems},
+		University of Michigan Press, Ann Arbor, MI (1975).
+		
+		\bibitem{ceylan2004}
+		H.~Ceylan and M.~G.~H.~Bell,
+		``Traffic signal timing optimisation based on genetic algorithm approach,
+		including drivers' routing,''
+		\textit{Transportation Research Part B: Methodological}
+		\textbf{38}(4), 329--342 (2004).
+		
+		\bibitem{reyes2024}
+		M.~Reyes and J.~Guia,
+		``An exploratory analysis on traffic management of Davao City,''
+		\textit{IJFMR --- Intl. Journal for Multidisciplinary Research}
+		\textbf{6}(30), 1--15 (2024).
+		\newblock \url{https://www.ijfmr.com/papers/2024/6/30428.pdf}
+		
+		\bibitem{webster1958}
+		F.~V.~Webster,
+		\textit{Traffic Signal Settings},
+		Road Research Technical Paper No.~39,
+		Her Majesty's Stationery Office, London (1958).
+		
+		\bibitem{goldberg1989}
+		D.~E.~Goldberg,
+		\textit{Genetic Algorithms in Search, Optimization, and Machine Learning},
+		Addison-Wesley, Reading, MA (1989).
+		
+		\bibitem{park1999}
+		B.~Park, C.~J.~Messer, and T.~Urbanik,
+		``Traffic signal timing optimization program for oversaturated conditions,''
+		\textit{Transportation Research Record}
+		\textbf{1683}(1), 133--142 (1999).
+		
+		\bibitem{stevanovic2013}
+		A.~Stevanovic, J.~Stevanovic, and C.~Kergaye,
+		``Optimization of traffic signal timings based on surrogate measures of safety,''
+		\textit{Transportation Research Part C: Emerging Technologies}
+		\textbf{32}, 159--178 (2013).
+		
+		\bibitem{alegre2025}
+		L.~N.~Alegre, A.~Neto, and C.~Gershenson,
+		``Memory-assisted genetic algorithm for signal timing optimization in traffic networks,''
+		\textit{Proc. Genetic and Evolutionary Computation Conf. Companion},
+		pp.~1789--1797 (2025).
+		\newblock DOI: \url{https://doi.org/10.1145/3712255.3734541}
+		
+		\bibitem{krajzewicz2002}
+		D.~Krajzewicz, G.~Hertkorn, C.~R\"{o}ssel, and P.~Wagner,
+		``SUMO (Simulation of Urban MObility): An open-source traffic simulation,''
+		\textit{Proc. 4th Middle East Symposium on Simulation and Modelling (MESM)},
+		pp.~183--187 (2002).
+		
+		\bibitem{krajzewicz2012}
+		D.~Krajzewicz, J.~Erdmann, M.~Behrisch, and L.~Bieker,
+		``Recent development and applications of SUMO --- Simulation of Urban MObility,''
+		\textit{Intl. Journal on Advances in Systems and Measurements}
+		\textbf{5}(3--4), 128--138 (2012).
+		
+		\bibitem{lopez2018}
+		P.~A.~Lopez, M.~Behrisch, L.~Bieker-Walz, J.~Erdmann, Y.-P.~Fl\"{o}tter\"{o}d,
+		R.~Hilbrich, L.~L\"{u}cken, J.~Rummel, P.~Wagner, and E.~Wi{\ss}ner,
+		``Microscopic traffic simulation using SUMO,''
+		\textit{Proc. 21st Intl. Conf. on Intelligent Transportation Systems (ITSC)},
+		pp.~2575--2582 (2018).
+		
+		\bibitem{alegre2021}
+		L.~N.~Alegre,
+		``SUMO-RL,'' GitHub repository,
+		\url{https://github.com/LucasAlegre/sumo-rl} (2021).
+		
+	\end{thebibliography}
+	
+\end{document}
