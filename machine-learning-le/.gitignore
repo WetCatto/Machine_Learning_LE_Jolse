@@ -1,0 +1,7 @@
+.direnv/
+.ipynb_checkpoints/
+.pip_packages/
+misc/
+tensorboard_logs/
+quimpo_ge_torres/rl_trip_*
+quimpo_ge_torres/baseline_trip_*
