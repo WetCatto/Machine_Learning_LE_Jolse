@@ -6,6 +6,19 @@
 
 ---
 
+## Paper Status
+
+**Under revision** — both reviewers recommended Major Revision (April 2026).  
+All structural reviewer comments have been addressed in `main.tex`. Quantitative results (Sections 4 and 5, Abstract) remain as fill-in placeholders pending simulation runs.
+
+See [`REVIEW_RESPONSE_SUMMARY.md`](REVIEW_RESPONSE_SUMMARY.md) for a full comment-by-comment breakdown.
+
+> **Two items still require author action before final submission:**
+> 1. Fill in simulation results (run `ga_optimize.py` then `evaluate_ga.py` and paste outputs into `main.tex`)
+> 2. Manually verify Reference [3] (Gradinescu 2007) — venue and co-authors flagged as unconfirmed by Reviewer 2
+
+---
+
 ## Overview
 
 This repository contains the LaTeX paper and SUMO simulation codebase for a study that applies a Genetic Algorithm (GA) to optimize fixed-time traffic signal plans at two Davao City intersections:
